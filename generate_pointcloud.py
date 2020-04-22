@@ -101,6 +101,9 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file):
     file = open(ply_file,"w")
     file.write('''ply
 format ascii 1.0
+obj_info is_mesh 0
+obj_info num_cols %d
+obj_info num_rows %d
 element vertex %d
 property float x
 property float y
@@ -115,12 +118,12 @@ element range_grid %d
 property list uchar int vertex_indices
 end_header
 %s
-'''%(len(points),len(range_grid),"".join(points)))
+'''%(width, height, len(points),len(range_grid),"".join(points)))
     for i, flag in enumerate(range_grid) :
         if flag :
             file.write("%d %d\n"%(1, i))
         else :
-            file.write("%d %d\n"%(0, i))
+            file.write("%d\n"%0)
     file.close()
 
 
@@ -136,4 +139,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     generate_pointcloud(args.rgb_file,args.depth_file, args.normal_file, args.ply_file)
-    
+    # python generate_pointcloud.py data/diffuse_albedo.png data/dist0.exr data/syn.tif data/output.ply
+    # ./mesh_opt data/output.ply -fc emily.fc data/result1.ply
