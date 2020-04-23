@@ -140,12 +140,13 @@ if __name__ == '__main__':
     parser.add_argument('ply_file', help='output PLY file (format: ply)')
     args = parser.parse_args()
 
-    n_sample = 5;
+    n_sample = 5
     U = range(height)
     U_sample = [U[i : i+height//n_sample] for i in range(0, height, height//n_sample)]
     V = range(width)
     V_sample = [U[i : i+width//n_sample] for i in range(0, width, width//n_sample)]
-    
+    print(U_sample, V_sample)
+    exit()
     output = args.ply_file
     for i, u in enumerate(U_sample) :
         for j, v in enumerate(V_sample) :
