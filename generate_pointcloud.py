@@ -57,7 +57,7 @@ centerY = height / 2
 x_pitch = sensor_width / width
 y_pitch = sensor_height / height
 
-def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file):
+def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file, height_range, width_range):
     """
     Generate a colored point cloud in PLY format from a color and a depth image.
     
@@ -83,8 +83,8 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file):
         raise Exception("Depth image and normal map do not have the same resolution.")
     points = []
     range_grid = []    
-    for u in range(height) :
-        for v in range(width) :
+    for u in height_range :
+        for v in width_range :
             color = rgb[u][v]
             N = normal[u][v]
             Z = depth[u][v][0]
@@ -118,7 +118,7 @@ element range_grid %d
 property list uchar int vertex_indices
 end_header
 %s
-'''%(width, height, len(points),len(range_grid),"".join(points)))
+'''%(len(width_range), len(height_range), len(points),len(range_grid),"".join(points)))
     cnt = 0
     for flag in range_grid :
         if flag :
@@ -140,6 +140,19 @@ if __name__ == '__main__':
     parser.add_argument('ply_file', help='output PLY file (format: ply)')
     args = parser.parse_args()
 
-    generate_pointcloud(args.rgb_file,args.depth_file, args.normal_file, args.ply_file)
+    n_sample = 5;
+    U = range(height)
+    U_sample = [U[i : i+height//n_sample] for i in range(0, height, height//n_sample)]
+    V = range(width)
+    V_sample = [U[i : i+width//n_sample] for i in range(0, width, width//n_sample)]
+    
+    output = args.ply_file
+    for i, u in enumerate(U_sample) :
+        for j, v in enumerate(V_sample) :
+            generate_pointcloud(args.rgb_file,args.depth_file, args.normal_file, output + str(i) + " " + str(j) + ".ply", u, v)
+            print(i, j, "done")
+    # generate_pointcloud(args.rgb_file,args.depth_file, args.normal_file, args.ply_file)
     # python generate_pointcloud.py data/diffuse_albedo.png data/dist0.exr data/syn.tif data/output.ply
     # ./mesh_opt data/output.ply -fc emily.fc data/result1.ply
+
+     # python generate_pointcloud.py data/diffuse_albedo.png data/dist0.exr data/syn.tif before_correction/output
