@@ -83,8 +83,8 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file):
         raise Exception("Depth image and normal map do not have the same resolution.")
     points = []
     range_grid = []    
-    for v in range(width):
-        for u in range(height):
+    for u in range(height) :
+        for v in range(width) :
             color = rgb[u][v]
             N = normal[u][v]
             Z = depth[u][v][0]
@@ -119,9 +119,11 @@ property list uchar int vertex_indices
 end_header
 %s
 '''%(width, height, len(points),len(range_grid),"".join(points)))
-    for i, flag in enumerate(range_grid) :
+    cnt = 0
+    for flag in range_grid :
         if flag :
-            file.write("%d %d\n"%(1, i))
+            file.write("%d %d\n"%(1, cnt))
+            cnt += 1
         else :
             file.write("%d\n"%0)
     file.close()
