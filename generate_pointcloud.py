@@ -117,8 +117,7 @@ property uchar blue
 element range_grid %d
 property list uchar int vertex_indices
 end_header
-%s
-'''%(len(width_range), len(height_range), len(points),len(range_grid),"".join(points)))
+%s'''%(len(width_range), len(height_range), len(points),len(range_grid),"".join(points)))
     cnt = 0
     for flag in range_grid :
         if flag :
@@ -145,8 +144,7 @@ if __name__ == '__main__':
     U_sample = [U[i : i+height//n_sample] for i in range(0, height, height//n_sample)]
     V = range(width)
     V_sample = [U[i : i+width//n_sample] for i in range(0, width, width//n_sample)]
-    print(U_sample, V_sample)
-    exit()
+    
     output = args.ply_file
     for i, u in enumerate(U_sample) :
         for j, v in enumerate(V_sample) :

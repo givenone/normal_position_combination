@@ -18,8 +18,8 @@ def getindex(h, w, x, num_samples) :
 def merging(infile, outfile, num_samples) :
 
     points = []
-    range_grid = [["0\n"] * width] * height
-
+    range_grid = [["0\n" for x in range(width)] for y in range(height)]
+    
     for h in range(num_samples) :
         for w in range(num_samples) :
             name = infile + "/result{} {}.ply".format(h,w)
@@ -34,18 +34,22 @@ def merging(infile, outfile, num_samples) :
                         num = x[0]
                         if num.size == 1 :
                             range_grid[u][v] = "%d %d\n"%(1, num[0] + len(points))
+                            #if num[0] + len(points) in dic :
+                            #    print(dic[num[0] + len(points)], (h,w,u,v,x))
+                            #dic[num[0] + len(points)] = (h,w,u,v,x)
                             
                     vertex = plydata.elements[0]
 
                     for x in vertex :
                         points.append("%f %f %f %f %f %f %d %d %d\n"%tuple(x))
-
+                    print(h, w, "done")
             except IOError:
                 print(name + " does not exist")
                 
     grid = ""
     for h in range(height) :
             grid += "".join(range_grid[h])    
+    
     file = open(outfile,"w")
     file.write('''ply
 format ascii 1.0
