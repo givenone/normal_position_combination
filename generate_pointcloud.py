@@ -1,35 +1,3 @@
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2013, Juergen Sturm, TUM
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above
-#    copyright notice, this list of conditions and the following
-#    disclaimer in the documentation and/or other materials provided
-#    with the distribution.
-#  * Neither the name of TUM nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
 # the resulting .ply file can be viewed for example with meshlab
 # sudo apt-get install meshlab
 #
@@ -39,7 +7,8 @@
 This script reads a registered pair of color and depth images and generates a
 colored 3D point cloud in the PLY format.
 """
-
+from plyfile import PlyData, PlyElement, PlyProperty, PlyListProperty
+import numpy as np
 import argparse
 import sys
 import os
@@ -82,7 +51,8 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file, height_rang
     if depth.size != normal.size :
         raise Exception("Depth image and normal map do not have the same resolution.")
     points = []
-    range_grid = []    
+    range_grid = []
+    
     for u in height_range :
         for v in width_range :
             color = rgb[u][v]
@@ -96,11 +66,12 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file, height_rang
             if abs(Z-4.9) > 3 :
                 range_grid.append(False) 
                 continue
-            points.append("%.8f %.8f %.8f %f %f %f %d %d %d\n"%(X,Y,Z, N[0], N[1], N[2], color[0],color[1],color[2])) # BGR -> RGB
+            points.append((X,Y,Z, N[0], N[1], N[2], color[0],color[1],color[2])) # BGR -> RGB
             range_grid.append(True)
-    file = open(ply_file,"w")
-    file.write('''ply
-format ascii 1.0
+            
+
+    header = '''ply
+format binary_little_endian 1.0
 obj_info is_mesh 0
 obj_info num_cols %d
 obj_info num_rows %d
@@ -116,18 +87,33 @@ property uchar green
 property uchar blue
 element range_grid %d
 property list uchar int vertex_indices
-end_header
-%s'''%(len(width_range), len(height_range), len(points),len(range_grid),"".join(points)))
+end_header'''%(len(width_range), len(height_range), len(points),len(range_grid))
+
+    file = open(ply_file,"wb")
+    file.write(header.encode('ascii'))
+    file.write(b'\n')
+    
+    for data in points :
+        file.write(np.dtype('<f4').type(data[0]))
+        file.write(np.dtype('<f4').type(data[1]))
+        file.write(np.dtype('<f4').type(data[2]))
+        file.write(np.dtype('<f4').type(data[3]))
+        file.write(np.dtype('<f4').type(data[4]))
+        file.write(np.dtype('<f4').type(data[5]))
+        file.write(np.dtype('<u1').type(data[6]))
+        file.write(np.dtype('<u1').type(data[7]))
+        file.write(np.dtype('<u1').type(data[8]))
     cnt = 0
     for flag in range_grid :
         if flag :
-            file.write("%d %d\n"%(1, cnt))
+            file.write(np.dtype('<u1').type(1))
+            file.write(np.dtype('<u4').type(cnt))
             cnt += 1
         else :
-            file.write("%d\n"%0)
+            file.write(np.dtype('<u1').type(0))
+    
     file.close()
-
-
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
     This script reads a registered pair of color and depth images and generates a colored 3D point cloud in the

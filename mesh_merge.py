@@ -1,4 +1,5 @@
 from plyfile import PlyData, PlyElement, PlyProperty, PlyListProperty
+import numpy as np
 import argparse
 
 width = 2160
@@ -18,7 +19,7 @@ def getindex(h, w, x, num_samples) :
 def merging(infile, outfile, num_samples) :
 
     points = []
-    range_grid = [["0\n" for x in range(width)] for y in range(height)]
+    range_grid = [[-1 for x in range(width)] for y in range(height)]
     
     for h in range(num_samples) :
         for w in range(num_samples) :
@@ -33,26 +34,19 @@ def merging(infile, outfile, num_samples) :
                         (u,v) = getindex(h, w, i, num_samples) 
                         num = x[0]
                         if num.size == 1 :
-                            range_grid[u][v] = "%d %d\n"%(1, num[0] + len(points))
-                            #if num[0] + len(points) in dic :
-                            #    print(dic[num[0] + len(points)], (h,w,u,v,x))
-                            #dic[num[0] + len(points)] = (h,w,u,v,x)
+                            range_grid[u][v] = (num[0] + len(points))
                             
                     vertex = plydata.elements[0]
 
                     for x in vertex :
-                        points.append("%f %f %f %f %f %f %d %d %d\n"%tuple(x))
+                        points.append(tuple(x))
                     print(h, w, "done")
             except IOError:
                 print(name + " does not exist")
-                
-    grid = ""
-    for h in range(height) :
-            grid += "".join(range_grid[h])    
-    
-    file = open(outfile,"w")
-    file.write('''ply
-format ascii 1.0
+
+
+    header = '''ply
+format binary_little_endian 1.0
 obj_info is_mesh 0
 obj_info num_cols %d
 obj_info num_rows %d
@@ -63,15 +57,38 @@ property float z
 property float nx
 property float ny
 property float nz
-property uchar diffuse_red
-property uchar diffuse_green
-property uchar diffuse_blue
+property uchar red
+property uchar green
+property uchar blue
 element range_grid %d
 property list uchar int vertex_indices
-end_header
-%s%s'''%(width, height, len(points), width * height,"".join(points), grid)
-    )
-    file.close()
+end_header'''%(width, height, len(points), width * height)
+
+    file = open(outfile,"wb")
+    file.write(header.encode('ascii'))
+    file.write(b'\n')
+    
+    for data in points :
+        file.write(np.dtype('<f8').type(data[0]))
+        file.write(np.dtype('<f8').type(data[1]))
+        file.write(np.dtype('<f8').type(data[2]))
+        file.write(np.dtype('<f8').type(data[3]))
+        file.write(np.dtype('<f8').type(data[4]))
+        file.write(np.dtype('<f8').type(data[5]))
+        file.write(np.dtype('<u1').type(data[6]))
+        file.write(np.dtype('<u1').type(data[7]))
+        file.write(np.dtype('<u1').type(data[8]))
+    
+    for u in range_grid :
+        for j in u :
+            if j != -1 :
+                file.write(np.dtype('<u1').type(1))
+                file.write(np.dtype('<u4').type(j))
+            else :
+                file.write(np.dtype('<u1').type(0))
+    
+    file.close()    
+   
 
 
 if __name__ == '__main__':
