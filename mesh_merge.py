@@ -22,7 +22,7 @@ def merging(infile, outfile, num_samples) :
     
     for h in range(num_samples) :
         for w in range(num_samples) :
-            name = infile + "/result{} {}.ply".format(h,w)
+            name = infile + "{} {}.ply".format(h,w)
             try:
                 with open(name, 'rb') as f:
                     plydata = PlyData.read(f)
@@ -69,9 +69,7 @@ property uchar diffuse_blue
 element range_grid %d
 property list uchar int vertex_indices
 end_header
-%s
-%s
-'''%(width, height, len(points), width * height,"".join(points), grid)
+%s%s'''%(width, height, len(points), width * height,"".join(points), grid)
     )
     file.close()
 

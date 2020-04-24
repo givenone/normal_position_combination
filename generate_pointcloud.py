@@ -96,7 +96,7 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file, height_rang
             if abs(Z-4.9) > 3 :
                 range_grid.append(False) 
                 continue
-            points.append("%f %f %f %f %f %f %d %d %d\n"%(X,Y,Z, N[0], N[1], N[2], color[0],color[1],color[2])) # BGR -> RGB
+            points.append("%.8f %.8f %.8f %f %f %f %d %d %d\n"%(X,Y,Z, N[0], N[1], N[2], color[0],color[1],color[2])) # BGR -> RGB
             range_grid.append(True)
     file = open(ply_file,"w")
     file.write('''ply
