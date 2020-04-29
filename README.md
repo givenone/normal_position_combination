@@ -57,7 +57,6 @@ Smooths the measured positions. The parameter s gives the radius of the smoothin
 Explicitly invokes the geometry optimization stage. Optimization is run on the current geometry and normal field, which depend on prior optimization, normal correction and smoothing operations. This stage is executed implicitly unless the option -noopt is used.
 
 -noopt
-
 Prevents the program from running the implicit geometry optimization step. This can be used, for example, if you want to save the results of the normal correction stage without optimizing the geometry. Don't forget the "norm:" prefix to the output file name if you want the results to contain normals.
 
 -noconf

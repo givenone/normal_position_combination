@@ -59,8 +59,8 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file, height_rang
             N = normal[u][v]
             Z = depth[u][v][0]
             if Z==0: continue
-            X = (u - centerX) * Z / focalLength * x_pitch
-            Y = (centerY - v) * Z / focalLength * y_pitch
+            X = (v - centerX) * Z / focalLength * x_pitch
+            Y = (centerY - u) * Z / focalLength * y_pitch
             Z = Z #+ camera
             
             if abs(Z-4.9) > 3 :
@@ -123,14 +123,25 @@ if __name__ == '__main__':
     parser.add_argument('depth_file', help='input depth image (format: tiff)')
     parser.add_argument('normal_file', help='input depth image (format: tiff)')
     parser.add_argument('ply_file', help='output PLY file (format: ply)')
+    parser.add_argument('overlap', help='Number of overlapping pixels')
     args = parser.parse_args()
 
     n_sample = 5
+    overlap = int(args.overlap)
+
+    index = [(i-overlap, i+height//n_sample + overlap) for i in range(0, height, height//n_sample)]
+    index[0] = (index[0][0]+overlap, index[0][1])
+    index[len(index)-1] = (index[len(index)-1][0], index[len(index)-1][1]-overlap)
     U = range(height)
-    U_sample = [U[i : i+height//n_sample] for i in range(0, height, height//n_sample)]
+    U_sample = [U[s : e] for s, e in index]
+    print(U_sample)
+    index = [(i-overlap, i+width//n_sample + overlap) for i in range(0, width, width//n_sample)]
+    index[0] = (index[0][0]+overlap, index[0][1])
+    index[len(index)-1] = (index[len(index)-1][0], index[len(index)-1][1]-overlap)
     V = range(width)
-    V_sample = [U[i : i+width//n_sample] for i in range(0, width, width//n_sample)]
-    
+    V_sample = [V[s : e] for s, e in index]
+        
+
     output = args.ply_file
     for i, u in enumerate(U_sample) :
         for j, v in enumerate(V_sample) :

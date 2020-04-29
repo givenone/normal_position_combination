@@ -326,6 +326,7 @@ void opposite_edge(const TriMesh::Face &f, int v, int *a, int *b) {
 }
 
 // Arbitrary mesh optimizer
+// This function is executed for our splitted version.
 static void optimize_mesh(TriMesh *mesh, float lambda, float blambda) {
     mesh->need_adjacentfaces();
     mesh->need_neighbors();
