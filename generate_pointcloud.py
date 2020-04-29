@@ -61,15 +61,14 @@ def generate_pointcloud(rgb_file, depth_file, normal_file, ply_file, height_rang
             if Z==0: continue
             X = (v - centerX) * Z / focalLength * x_pitch
             Y = (centerY - u) * Z / focalLength * y_pitch
-            Z = Z #+ camera
+            Z = -Z #+ camera
             
-            if abs(Z-4.9) > 3 :
+            if abs(Z+4.9) > 3 :
                 range_grid.append(False) 
                 continue
             points.append((X,Y,Z, N[0], N[1], N[2], color[0],color[1],color[2])) # BGR -> RGB
             range_grid.append(True)
             
-
     header = '''ply
 format binary_little_endian 1.0
 obj_info is_mesh 0
@@ -134,17 +133,16 @@ if __name__ == '__main__':
     index[len(index)-1] = (index[len(index)-1][0], index[len(index)-1][1]-overlap)
     U = range(height)
     U_sample = [U[s : e] for s, e in index]
-    print(U_sample)
     index = [(i-overlap, i+width//n_sample + overlap) for i in range(0, width, width//n_sample)]
     index[0] = (index[0][0]+overlap, index[0][1])
     index[len(index)-1] = (index[len(index)-1][0], index[len(index)-1][1]-overlap)
     V = range(width)
     V_sample = [V[s : e] for s, e in index]
         
-
     output = args.ply_file
     for i, u in enumerate(U_sample) :
         for j, v in enumerate(V_sample) :
+            print(u, v)
             generate_pointcloud(args.rgb_file,args.depth_file, args.normal_file, output + str(i) + " " + str(j) + ".ply", u, v)
             print(i, j, "done")
     # generate_pointcloud(args.rgb_file,args.depth_file, args.normal_file, args.ply_file)
