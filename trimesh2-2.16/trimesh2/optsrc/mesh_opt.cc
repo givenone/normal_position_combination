@@ -11,13 +11,14 @@
 #include <cstdio> 
 #include <vector> 
 #include <cstdarg> 
-
-#include "cholmod.h"
+#include <string.h>
+#include "suitesparse/cholmod.h"
 #include "TriMesh.h"
 #include "TriMesh_algo.h"
-
+using namespace trimesh;
+using namespace std;
 // CHOLMOD error handler
-static void handler(int status, char *file, int line, char *message) {
+static void handler(int status, const char *file, int line, const char *message) {
     fprintf(stderr, "\ncholmod error: file: %s line: %d status: %d: %s\n\n",
         file, line, status, message);
     exit(1);
@@ -27,8 +28,8 @@ static void usage(const char *myname) {
     fprintf(stderr, "Usage: %s infile [options] [outfile]\n", myname);
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "   -fc file.fc     Range grid camera intrinsics (i.e. fx fy cx cy)\n");
-    fprintf(stderr, "   -lambda         Geometry weight\n");
-    fprintf(stderr, "   -blambda        Boundary geometry weight\n");
+    fprintf(stderr, "   -lambda l       Geometry weight\n");
+    fprintf(stderr, "   -blambda b      Boundary geometry weight\n");
     fprintf(stderr, "   -fixnorm s[:n]  Fix normals by smoothing n times with sigma=s*edgelength\n");
     fprintf(stderr, "   -smooth s[:n]   Smooth positions n times with sigma=s*edgelength\n");
     fprintf(stderr, "   -opt            Run one optimization round\n");
@@ -326,7 +327,6 @@ void opposite_edge(const TriMesh::Face &f, int v, int *a, int *b) {
 }
 
 // Arbitrary mesh optimizer
-// This function is executed for our splitted version.
 static void optimize_mesh(TriMesh *mesh, float lambda, float blambda) {
     mesh->need_adjacentfaces();
     mesh->need_neighbors();

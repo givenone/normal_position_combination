@@ -4,7 +4,7 @@ INCLUDES = -I../include -Iinclude
 LIBDIR = -L../lib.$(UNAME) -Llib.$(UNAME)
 
 include $(MAKERULESDIR)/Makerules
-
+CHOLMODLIBS = -lcholmod -lamd -lcolamd -lccolamd -lcamd -llapack -lblas
 OPTSOURCES =	mesh_opt.cc
 
 OPTFILES = $(addprefix $(OBJDIR)/,$(OPTSOURCES:.cc=.o))

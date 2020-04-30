@@ -5,6 +5,7 @@ CXX = g++
 #CXX = clang++ -stdlib=libc++
 AR = ar
 
+CHOLMODLIBS = -lcholmod -lamd -lcolamd -lccolamd -lcamd -lmetis -llapack -lblas
 ARCHOPTS = -m32 -march=core2 -mfpmath=sse -mtune=native
 COPTS = -fno-strict-overflow -fno-math-errno -fno-trapping-math
 COPTS += -Wall -Wextra -Wshadow
